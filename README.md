@@ -45,7 +45,6 @@ Ganti `YOUR_USERNAME` dengan username GitHub Anda.
 
 ```bash
 # Masuk ke folder backend (sudah di root)
-cd "C:\programer\belajar\to do list"
 
 # Install dependencies
 npm install
@@ -71,8 +70,7 @@ Server akan berjalan di: `http://localhost:5000` (atau port yang Anda atur)
 Buka terminal baru, lalu:
 
 ```bash
-# Masuk ke folder frontend
-cd "C:\programer\belajar\to do list\client"
+# Masuk ke folder frontend /client
 
 # Install dependencies
 npm install
