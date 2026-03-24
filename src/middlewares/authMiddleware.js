@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
-// KUNCI RAHASIA JWT (Sebaiknya ditaruh di .env, ini contoh sederhana)
-const JWT_SECRET = process.env.JWT_SECRET || 'rahasia_super_kuat_123';
+// KUNCI RAHASIA JWT - HARUS ada di .env, tidak boleh ada default
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // 1. Middleware Proteksi: Memastikan request memiliki Token JWT yang Valid
 const protect = async (req, res, next) => {

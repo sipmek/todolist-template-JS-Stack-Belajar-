@@ -1,6 +1,32 @@
 // Memuat semua variabel dari file .env (seperti PORT) ke dalam process.env
 require('dotenv').config();
 
+// === VALIDASI ENVIRONMENT VARIABLES ===
+// Function untuk cek apakah required env variables sudah ada
+const validateEnv = () => {
+  const requiredEnvs = [
+    'JWT_SECRET',
+    'DATABASE_URL',
+    'DATABASE_HOST',
+    'DATABASE_USER',
+    'DATABASE_NAME'
+  ];
+
+  const missingEnvs = requiredEnvs.filter(env => !process.env[env]);
+
+  if (missingEnvs.length > 0) {
+    console.error(`[FATAL ERROR] Environment variables berikut WAJIB ada di .env file:`);
+    missingEnvs.forEach(env => console.error(`  ❌ ${env}`));
+    console.error('\nSilakan update .env file Anda dengan value yang sesuai.');
+    process.exit(1);
+  }
+
+  console.log('[INFO] ✅ Semua required environment variables sudah ada.');
+};
+
+// Jalankan validasi sebelum app start
+validateEnv();
+
 // Memanggil konfigurasi express yang telah dibuat di app.js
 const app = require('./app');
 const { sequelize } = require('./models');

@@ -4,6 +4,7 @@ import todoApi from '../api/todoApi';
 import TodoForm from '../components/TodoForm';
 import TodoItem from '../components/TodoItem';
 import { kucing, kerja1, kerja2 } from "../assets";
+import { getErrorMessage, handleApiError } from '../utils/errorHandler';
 
 function TodoDashboard() {
   const [todos, setTodos] = useState([]);
@@ -12,7 +13,19 @@ function TodoDashboard() {
   const navigate = useNavigate();
 
   // Ambil profil sederhana user dari localStorage (disimpan dari halaman login tadi)
-  const userData = JSON.parse(localStorage.getItem('user')) || { username: 'Tamu', role: 'user' };
+  // SAFE: Check apakah user tersimpan di localStorage sebelum parse
+  const userStr = localStorage.getItem('user');
+  const getUserFromStorage = () => {
+  try {
+    const data = localStorage.getItem('user');
+    if (!data || data === "undefined") return null;
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+};
+
+const userData = getUserFromStorage() || { username: 'Tamu', role: 'user' };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -23,14 +36,18 @@ function TodoDashboard() {
   const loadTodos = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await todoApi.getAll();
       setTodos(response.data);
-      setError(null);
     } catch (err) {
-      if (err.response?.status === 401) {
-        handleLogout(); // Token kedaluwarsa, paksa keluar!
+      const errorInfo = handleApiError(err);
+      
+      // Auto logout jika 401 (unauthorized/token expired)
+      if (errorInfo.isAuthError) {
+        handleLogout();
       } else {
-        setError('Gagal memuat tugas. Server bermasalah?');
+        // Tampilkan error message ke user
+        setError(errorInfo.message);
       }
     } finally {
       setLoading(false);
@@ -46,8 +63,10 @@ function TodoDashboard() {
     try {
       await todoApi.create(title);
       loadTodos();
+      setError(null);
     } catch (err) {
-      alert(err.response?.data?.message || 'Gagal menambahkan tugas');
+      const errorMsg = getErrorMessage(err, 'create');
+      setError(errorMsg);
     }
   };
 
@@ -55,8 +74,10 @@ function TodoDashboard() {
     try {
       await todoApi.update(id, { completed });
       loadTodos();
+      setError(null);
     } catch (err) {
-      alert('Gagal mengubah status tugas');
+      const errorMsg = getErrorMessage(err, 'update');
+      setError(errorMsg);
     }
   };
 
@@ -64,8 +85,10 @@ function TodoDashboard() {
     try {
       await todoApi.update(id, { title });
       loadTodos();
+      setError(null);
     } catch (err) {
-      alert(err.response?.data?.message || 'Akses Ditolak');
+      const errorMsg = getErrorMessage(err, 'update');
+      setError(errorMsg);
     }
   };
 
@@ -73,8 +96,10 @@ function TodoDashboard() {
     try {
       await todoApi.delete(id);
       loadTodos();
+      setError(null);
     } catch (err) {
-      alert(err.response?.data?.message || 'Gagal menghapus tugas');
+      const errorMsg = getErrorMessage(err, 'delete');
+      setError(errorMsg);
     }
   };
 

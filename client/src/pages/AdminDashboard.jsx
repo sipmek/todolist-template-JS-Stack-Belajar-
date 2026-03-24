@@ -9,7 +9,9 @@ function AdminDashboard() {
   const navigate = useNavigate();
 
   // Pastikan yang masuk sini benar-benar Admin dari localStorage
-  const userData = JSON.parse(localStorage.getItem('user'));
+  // SAFE: Check sebelum parse
+  const userStr = localStorage.getItem('user');
+  const userData = userStr ? JSON.parse(userStr) : null;
 
   useEffect(() => {
     if (!userData || userData.role !== 'admin') {
